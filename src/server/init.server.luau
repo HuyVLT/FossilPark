@@ -1,5 +1,17 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local function loadServices(container)
+	for _, child in container:GetChildren() do
+		local module = if child:IsA("ModuleScript")
+			then child
+			elseif child:IsA("Folder") then child:FindFirstChild("init")
+			else nil
 
-print("Hello world, from server!")
+		if module then
+			local ok, service = pcall(require, module)
+			if ok and type(service) == "table" and type(service.init) == "function" then
+				service.init()
+			end
+		end
+	end
+end
 
-require(ReplicatedStorage.Shared.Modules.Car).init()
+loadServices(script.Services)
