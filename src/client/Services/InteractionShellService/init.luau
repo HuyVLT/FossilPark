@@ -5,10 +5,14 @@
 
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local InteractionUiShell = require(script.Parent:WaitForChild("InteractionUiShell"))
+local OnboardingTargetGuidance = require(script.Parent:WaitForChild("OnboardingTargetGuidance"))
+local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
+local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
 
 type InteractionKind = "Dig" | "Revival" | "Research" | "Gate"
 
@@ -21,11 +25,55 @@ type InteractionTarget = {
 }
 
 local InteractionShellService = {}
+local previewUi: any = nil
+local targetGuidance: any = nil
+local promptConnection: RBXScriptConnection? = nil
+
+local function cleanup()
+	if promptConnection then
+		promptConnection:Disconnect()
+		promptConnection = nil
+	end
+
+	if targetGuidance then
+		targetGuidance:destroy()
+		targetGuidance = nil
+	end
+
+	ContextActionService:UnbindAction("Dev3PlaceholderInteract")
+	previewUi = nil
+end
+
+-- DEV PREVIEW ONLY
+-- Replace with server-authoritative onboarding state replication after networking contract is finalized.
+function InteractionShellService.setPreviewState(stateName: string): boolean
+	local presentation = OnboardingPresentationConfig.getPresentation(stateName)
+	if not presentation then
+		warn(string.format("[OnboardingPreview] Unknown preview state %q", stateName))
+		return false
+	end
+
+	if not previewUi then
+		warn("[OnboardingPreview] UI shell is not initialized")
+		return false
+	end
+
+	previewUi.setOnboardingObjective(presentation.title, presentation.instruction, presentation.target)
+	if targetGuidance then
+		targetGuidance:setTarget(presentation.target)
+	end
+	return true
+end
 
 function InteractionShellService.init()
+	cleanup()
+
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 	local ui = InteractionUiShell.new(playerGui)
+	previewUi = ui
+	targetGuidance = OnboardingTargetGuidance.new(player, ui)
+	InteractionShellService.setPreviewState("FirstDig")
 
 	local blockout = Workspace:WaitForChild("Site1Blockout")
 	local targets: { InteractionTarget } = {
@@ -130,7 +178,7 @@ function InteractionShellService.init()
 
 	ContextActionService:BindAction("Dev3PlaceholderInteract", activateInteraction, false, Enum.KeyCode.E)
 
-	RunService.RenderStepped:Connect(updatePrompt)
+	promptConnection = RunService.RenderStepped:Connect(updatePrompt)
 end
 
 return InteractionShellService

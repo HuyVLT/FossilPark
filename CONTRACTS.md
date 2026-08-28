@@ -61,7 +61,7 @@ species_a — TEMPORARY / REQUIRES TEAM CONFIRMATION
 species_b — TEMPORARY / REQUIRES TEAM CONFIRMATION
 ```
 
-See [src/shared/SpeciesConfig.luau](src/shared/SpeciesConfig.luau). Do not add additional species.
+See [src/shared/Config/SpeciesConfig.luau](src/shared/Config/SpeciesConfig.luau). Do not add additional species.
 
 ## 6. Variant Contract
 

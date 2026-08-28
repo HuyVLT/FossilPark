@@ -277,6 +277,98 @@
 - **Yêu cầu phối hợp với Dev 1 & Dev 2:**
   - Review the experimental RNG prototype only through Contract Day before any production registration.
 
+### [2026-08-28] - Correct Contract SpeciesConfig Reference
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Updated the stale SpeciesConfig documentation link after the shared-config structure migration.
+  - Scanned `CONTRACTS.md` for other repository file paths; no additional stale paths were found.
+- **Files ảnh hưởng:**
+  - `CONTRACTS.md`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - This is a path-only documentation correction. No contract names, schemas, enums, Remote definitions, ownership rules, or gameplay rules changed.
+- **Trạng thái:** Completed.
+- **Bước tiếp theo:**
+  - None.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - None.
+
+### [2026-08-28] - Add Server Onboarding State Machine Skeleton
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Added the server-only `OnboardingService` skeleton under the organized service-loader structure.
+  - Added ordered, in-memory transitions for the locked onboarding states and internal Studio mock-domain-event mapping.
+- **Files ảnh hưởng:**
+  - `src/server/Services/OnboardingService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - Only `OnboardingService` writes temporary onboarding state. No DataStore, RemoteEvent, rewards, RNG, gameplay logic, or permanent player data was added.
+  - `GateSeen` retains a TODO for Dev 1 to shut down First Session Protection through a future server integration.
+- **Trạng thái:** Completed; ready for Studio server Command Bar transition testing.
+- **Bước tiếp theo:**
+  - Replace mock event calls only when Dev 1 exposes validated server domain events.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - Dev 1: provide validated domain-event integration points; no client integration is required yet.
+
+### [2026-08-28] - Add Onboarding Presentation Config and Local Preview UI
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Added editable shared presentation metadata for all 11 contracted onboarding states.
+  - Added a compact onboarding objective component inside the existing Dev 3 interaction ScreenGui.
+  - Added a local-only preview API for Studio UI testing.
+- **Files ảnh hưởng:**
+  - `src/shared/Config/OnboardingPresentationConfig.luau`
+  - `src/client/Services/InteractionShellService/InteractionUiShell.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - Preview only changes local presentation and does not contact the server, modify onboarding state, grant rewards, unlock content, or persist data.
+  - Real state replication remains blocked until the team finalizes networking and Dev 1 domain-event integration.
+- **Trạng thái:** Completed; ready for client-side Studio preview testing.
+- **Bước tiếp theo:**
+  - Replace preview calls with server-authoritative replication only after the required contract and integration are available.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - Dev 1: provide authoritative state replication path after networking is finalized. Dev 2: replace temporary presentation when final UI/UX work begins.
+
+### [2026-08-28] - Add Client-Only Onboarding Target Guidance Preview
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Added a named client-only resolver for Site 1 onboarding targets and a single reusable target Highlight.
+  - Added presentation-only distance text to the existing onboarding objective UI.
+  - Extended local preview state changes to update objective text, target Highlight, and distance without changing progression.
+- **Files ảnh hưởng:**
+  - `src/client/Services/InteractionShellService/OnboardingTargetResolver.luau`
+  - `src/client/Services/InteractionShellService/OnboardingTargetGuidance.luau`
+  - `src/client/Services/InteractionShellService/InteractionUiShell.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - The Highlight and distance calculation are client presentation only; neither changes onboarding progression nor contacts the server.
+  - Real state source remains blocked on authoritative server-to-client synchronization and Dev 1 domain integration.
+- **Trạng thái:** Completed; ready for Studio target-guidance preview testing.
+- **Bước tiếp theo:**
+  - Replace local preview state only after a contract-approved authoritative onboarding replication path exists.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - Dev 1: provide the future authoritative state source. Dev 2: replace prototype guidance presentation during final UX work.
+
+### [2026-08-28] - Complete Dev 3 Integration Checkpoint and Dev 1 Handoff
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Reviewed Dev 3 services, shared configs, loader discovery, authority boundaries, onboarding states, and Site 1 target names.
+  - Created a concise Dev 1 handoff document for the current world/onboarding/presentation prototype.
+  - Removed empty legacy production RNG service folders so they cannot appear as misleading loader candidates.
+- **Files ảnh hưởng:**
+  - `DEV1_INTEGRATION_HANDOFF.md`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - No networking, gameplay, contract, or authority behavior was added during this checkpoint.
+  - Authoritative onboarding synchronization remains `TBD` pending networking agreement and Dev 1 domain integration.
+- **Trạng thái:** Completed; ready for an explicit checkpoint commit approval.
+- **Bước tiếp theo:**
+  - Dev 1 connects validated domain events and a contract-approved replicated state path when available.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - Dev 1: review `DEV1_INTEGRATION_HANDOFF.md` before integration. Dev 2: replace temporary UI presentation when final UX work begins.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]

@@ -77,6 +77,38 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 	discoveriesLabel.ZIndex = 2
 	discoveriesLabel.Parent = topHud
 
+	local onboardingObjective = Instance.new("Frame")
+	onboardingObjective.Name = "OnboardingObjective"
+	onboardingObjective.AnchorPoint = Vector2.new(1, 0)
+	onboardingObjective.Position = UDim2.new(1, -20, 0, 20)
+	onboardingObjective.Size = UDim2.fromOffset(320, 108)
+	onboardingObjective.BackgroundColor3 = PANEL_COLOR
+	onboardingObjective.BackgroundTransparency = PANEL_TRANSPARENCY
+	onboardingObjective.ZIndex = 1
+	addCorner(onboardingObjective, 10)
+	addStroke(onboardingObjective, CYAN)
+	onboardingObjective.Parent = screenGui
+
+	local objectiveTitle = createTextLabel("Title", "", Enum.Font.GothamBold, 16, TEXT_COLOR)
+	objectiveTitle.Position = UDim2.fromOffset(16, 10)
+	objectiveTitle.Size = UDim2.fromOffset(288, 22)
+	objectiveTitle.ZIndex = 2
+	objectiveTitle.Parent = onboardingObjective
+
+	local objectiveInstruction = createTextLabel("Instruction", "", Enum.Font.Gotham, 14, SUBTEXT_COLOR)
+	objectiveInstruction.Position = UDim2.fromOffset(16, 38)
+	objectiveInstruction.Size = UDim2.fromOffset(288, 32)
+	objectiveInstruction.TextYAlignment = Enum.TextYAlignment.Top
+	objectiveInstruction.ZIndex = 2
+	objectiveInstruction.Parent = onboardingObjective
+
+	local objectiveDistance = createTextLabel("Distance", "", Enum.Font.GothamBold, 13, CYAN)
+	objectiveDistance.Position = UDim2.fromOffset(16, 76)
+	objectiveDistance.Size = UDim2.fromOffset(288, 18)
+	objectiveDistance.Visible = false
+	objectiveDistance.ZIndex = 2
+	objectiveDistance.Parent = onboardingObjective
+
 	local prompt = Instance.new("Frame")
 	prompt.Name = "InteractionPrompt"
 	prompt.AnchorPoint = Vector2.new(0.5, 1)
@@ -172,6 +204,23 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 
 	function shell.clearPrompt()
 		prompt.Visible = false
+	end
+
+	function shell.setOnboardingObjective(title: string, instruction: string, target: string?)
+		objectiveTitle.Text = title
+		objectiveInstruction.Text = instruction
+		onboardingObjective:SetAttribute("TargetIdentifier", target)
+		objectiveDistance.Visible = false
+		onboardingObjective.Visible = true
+	end
+
+	function shell.setOnboardingDistance(distanceStuds: number?)
+		if distanceStuds then
+			objectiveDistance.Text = string.format("%d studs", distanceStuds)
+			objectiveDistance.Visible = true
+		else
+			objectiveDistance.Visible = false
+		end
 	end
 
 	local function showPanel(title: string, content: string, secondary: string?, status: string?)
