@@ -53,11 +53,11 @@ function InteractionShellService.init()
 		promptTitle = "[E] Inspect Site 2 Gate",
 		range = 48,
 	},
- 	}
+	}
 
- 	local activeTarget: InteractionTarget? = nil
+	local activeTarget: InteractionTarget? = nil
 
- 	local function getWorldPosition(instance: Instance): Vector3?
+	local function getWorldPosition(instance: Instance): Vector3?
 		if instance:IsA("BasePart") then
 			return instance.Position
 		end
@@ -67,10 +67,10 @@ function InteractionShellService.init()
 			return boundingBox.Position
 		end
 
- 		return nil
+		return nil
 	end
 
- 	local function updatePrompt()
+	local function updatePrompt()
 	if ui.isPanelOpen() then
 		activeTarget = nil
 		ui.clearPrompt()
@@ -104,9 +104,9 @@ function InteractionShellService.init()
 	else
 		ui.clearPrompt()
 	end
- 	end
+	end
 
- 	local function activateInteraction(_actionName: string, inputState: Enum.UserInputState, _inputObject: InputObject)
+	local function activateInteraction(_actionName: string, inputState: Enum.UserInputState, _inputObject: InputObject)
 	if inputState ~= Enum.UserInputState.Begin or ui.isPanelOpen() or not activeTarget then
 		return Enum.ContextActionResult.Pass
 	end
@@ -126,11 +126,11 @@ function InteractionShellService.init()
 	-- TODO: Dev 1 server validation and Dev 2 final input/presentation replace this prototype.
 	-- Intentionally no client reward, RNG, or permanent-state mutation.
 	return Enum.ContextActionResult.Sink
- 	end
+	end
 
- 	ContextActionService:BindAction("Dev3PlaceholderInteract", activateInteraction, false, Enum.KeyCode.E)
+	ContextActionService:BindAction("Dev3PlaceholderInteract", activateInteraction, false, Enum.KeyCode.E)
 
- 	RunService.RenderStepped:Connect(updatePrompt)
+	RunService.RenderStepped:Connect(updatePrompt)
 end
 
 return InteractionShellService
