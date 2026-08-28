@@ -1,0 +1,3 @@
+wally.lock*.luau text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
