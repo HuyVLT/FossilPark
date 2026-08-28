@@ -270,7 +270,7 @@
   - `DEV3_LOG.md`
 - **Quyết định kỹ thuật / Ghi chú:**
   - Remote service loaders are retained. The local project mapping is retained because it already maps all remote source roots and does not reference the absent optional `StarterPlayerScripts` path.
-  - Experimental RNG remains outside both `Services` folders and is therefore not loaded.
+  - The incoming remote RNG services were removed from the production `Services` folders and retained only under `Experimental`; they are therefore not loaded.
 - **Trạng thái:** Completed; awaiting Rojo/Studio smoke test.
 - **Bước tiếp theo:**
   - Run the standard Site 1 smoke test after syncing this integration branch in Roblox Studio.
