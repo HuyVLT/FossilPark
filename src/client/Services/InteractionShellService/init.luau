@@ -12,9 +12,12 @@ local Workspace = game:GetService("Workspace")
 local InteractionUiShell = require(script:WaitForChild("InteractionUiShell"))
 local OnboardingTargetGuidance = require(script:WaitForChild("OnboardingTargetGuidance"))
 local FirstSessionTimingTracker = require(script:WaitForChild("FirstSessionTimingTracker"))
+local RevivalPreviewFixtures = require(script:WaitForChild("RevivalPreviewFixtures"))
 local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
+local CollectionConfig = require(sharedConfig:WaitForChild("CollectionConfig"))
 local FirstSessionConfig = require(sharedConfig:WaitForChild("FirstSessionConfig"))
 local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
+local SpeciesConfig = require(sharedConfig:WaitForChild("SpeciesConfig"))
 
 type InteractionKind = "Dig" | "Revival" | "Research" | "Gate"
 
@@ -32,11 +35,17 @@ local targetGuidance: any = nil
 local promptConnection: RBXScriptConnection? = nil
 local previewRequestConnection: RBXScriptConnection? = nil
 local timingReportRequestConnection: RBXScriptConnection? = nil
+local revivalPreviewRequestConnection: RBXScriptConnection? = nil
+local collectionPreviewRequestConnection: RBXScriptConnection? = nil
 local timingTracker: any = nil
 
 local PREVIEW_STATE_ATTRIBUTE = "Dev3PreviewState"
 local PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3PreviewRequestId"
 local TIMING_REPORT_REQUEST_ID_ATTRIBUTE = "Dev3TimingReportRequestId"
+local REVIVAL_PREVIEW_NAME_ATTRIBUTE = "Dev3RevivalPreviewName"
+local REVIVAL_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3RevivalPreviewRequestId"
+local COLLECTION_PREVIEW_COUNT_ATTRIBUTE = "Dev3CollectionPreviewCount"
+local COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3CollectionPreviewRequestId"
 
 local function cleanup()
 	if promptConnection then
@@ -54,6 +63,16 @@ local function cleanup()
 		timingReportRequestConnection = nil
 	end
 
+	if revivalPreviewRequestConnection then
+		revivalPreviewRequestConnection:Disconnect()
+		revivalPreviewRequestConnection = nil
+	end
+
+	if collectionPreviewRequestConnection then
+		collectionPreviewRequestConnection:Disconnect()
+		collectionPreviewRequestConnection = nil
+	end
+
 	if targetGuidance then
 		targetGuidance:destroy()
 		targetGuidance = nil
@@ -62,6 +81,105 @@ local function cleanup()
 	ContextActionService:UnbindAction("Dev3PlaceholderInteract")
 	previewUi = nil
 	timingTracker = nil
+end
+
+local function getPreviewScreenGui(): ScreenGui?
+	local player = Players.LocalPlayer
+	local playerGui = player and player:FindFirstChildOfClass("PlayerGui")
+	local screenGui = playerGui and playerGui:FindFirstChild("Dev3InteractionShell")
+	if screenGui and screenGui:IsA("ScreenGui") then
+		return screenGui
+	end
+
+	return nil
+end
+
+local function applyRevivalPreview(fixtureName: string): boolean
+	local result = RevivalPreviewFixtures[fixtureName]
+	if not result or not previewUi then
+		return false
+	end
+
+	local species = SpeciesConfig[result.species]
+	if not species then
+		warn(string.format("[RevivalPreview] Unknown temporary species %q", result.species))
+		return false
+	end
+
+	local resultLabel = if result.isNewDiscovery then "NEW DISCOVERY" else "DUPLICATE"
+	previewUi.showRevivalResultPreview(species.displayName, result.variant, resultLabel)
+	print(string.format("[RevivalPreview] %s: %s / %s / %s", fixtureName, result.species, result.variant, resultLabel))
+	return true
+end
+
+local function applyCollectionPreview(discoveredCount: number): boolean
+	if not previewUi or discoveredCount < 0 or discoveredCount > CollectionConfig.totalSpecies then
+		return false
+	end
+
+	local slotLines: { string } = {}
+	for _, slot in ipairs(CollectionConfig.slots) do
+		local isDiscovered = slot.order <= discoveredCount
+		local stateName = if isDiscovered then "Discovered" else "Undiscovered"
+		local stateMetadata = CollectionConfig.discoveryPresentation[stateName]
+		local species = SpeciesConfig[slot.speciesId]
+		local identity = if isDiscovered and species then species.displayName else "???"
+		local previewVariantLabel = if slot.order == 2
+			then CollectionConfig.variantPresentation.Gold.label
+			else CollectionConfig.variantPresentation.Normal.label
+		local variantLabel = if isDiscovered then previewVariantLabel else "—"
+		table.insert(slotLines, string.format("%d. %s — %s — %s", slot.order, identity, stateMetadata.label, variantLabel))
+	end
+
+	previewUi.showCollectionPreview(discoveredCount, CollectionConfig.totalSpecies, slotLines)
+	print(string.format("[CollectionPreview] %d/%d", discoveredCount, CollectionConfig.totalSpecies))
+	return true
+end
+
+-- DEV PREVIEW ONLY. Displays a named immutable fixture and changes no authoritative state.
+function InteractionShellService.previewRevivalResult(fixtureName: string): boolean
+	if RevivalPreviewFixtures[fixtureName] == nil then
+		warn(string.format("[RevivalPreview] Unknown fixture %q", fixtureName))
+		return false
+	end
+
+	if previewUi then
+		return applyRevivalPreview(fixtureName)
+	end
+
+	local screenGui = getPreviewScreenGui()
+	if not screenGui then
+		warn("[RevivalPreview] UI shell is not initialized")
+		return false
+	end
+
+	screenGui:SetAttribute(REVIVAL_PREVIEW_NAME_ATTRIBUTE, fixtureName)
+	local requestId = screenGui:GetAttribute(REVIVAL_PREVIEW_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(REVIVAL_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
+	return true
+end
+
+-- DEV PREVIEW ONLY. Displays 0/2, 1/2, or 2/2 without storing Collection state.
+function InteractionShellService.previewCollection(discoveredCount: number): boolean
+	if discoveredCount % 1 ~= 0 or discoveredCount < 0 or discoveredCount > CollectionConfig.totalSpecies then
+		warn(string.format("[CollectionPreview] Expected an integer from 0 to %d", CollectionConfig.totalSpecies))
+		return false
+	end
+
+	if previewUi then
+		return applyCollectionPreview(discoveredCount)
+	end
+
+	local screenGui = getPreviewScreenGui()
+	if not screenGui then
+		warn("[CollectionPreview] UI shell is not initialized")
+		return false
+	end
+
+	screenGui:SetAttribute(COLLECTION_PREVIEW_COUNT_ATTRIBUTE, discoveredCount)
+	local requestId = screenGui:GetAttribute(COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
+	return true
 end
 
 local function applyPreviewState(stateName: string): boolean
@@ -156,6 +274,18 @@ function InteractionShellService.init()
 	timingReportRequestConnection = screenGui:GetAttributeChangedSignal(TIMING_REPORT_REQUEST_ID_ATTRIBUTE):Connect(function()
 		if timingTracker then
 			timingTracker:printReport(FirstSessionConfig.timingMilestones)
+		end
+	end)
+	revivalPreviewRequestConnection = screenGui:GetAttributeChangedSignal(REVIVAL_PREVIEW_REQUEST_ID_ATTRIBUTE):Connect(function()
+		local fixtureName = screenGui:GetAttribute(REVIVAL_PREVIEW_NAME_ATTRIBUTE)
+		if type(fixtureName) == "string" then
+			applyRevivalPreview(fixtureName)
+		end
+	end)
+	collectionPreviewRequestConnection = screenGui:GetAttributeChangedSignal(COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE):Connect(function()
+		local discoveredCount = screenGui:GetAttribute(COLLECTION_PREVIEW_COUNT_ATTRIBUTE)
+		if type(discoveredCount) == "number" then
+			applyCollectionPreview(discoveredCount)
 		end
 	end)
 	InteractionShellService.setPreviewState("FirstDig")

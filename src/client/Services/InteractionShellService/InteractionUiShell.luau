@@ -249,6 +249,19 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 		showPanel("SITE 2", "Locked", "Discover more species to continue.")
 	end
 
+	function shell.showRevivalResultPreview(speciesName: string, variantName: string, resultLabel: string)
+		showPanel("REVIVAL RESULT — DEV PREVIEW", speciesName, variantName, resultLabel)
+	end
+
+	function shell.showCollectionPreview(discoveredCount: number, totalCount: number, slotLines: { string })
+		discoveriesLabel.Text = string.format("Discoveries: %d / %d", discoveredCount, totalCount)
+		showPanel(
+			"COLLECTION — DEV PREVIEW",
+			string.format("%d / %d Species", discoveredCount, totalCount),
+			table.concat(slotLines, "\n")
+		)
+	end
+
 	function shell.isPanelOpen(): boolean
 		return panel.Visible
 	end

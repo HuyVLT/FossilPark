@@ -461,6 +461,32 @@
   - **TBD CONTRACT:** production onboarding replication/network path.
   - **READY TO INTEGRATE:** stable Site 1 landmark config, Dig/Revival targeting, presentation preview, interaction ranges, and Studio timing milestones.
 
+### [2026-08-28] - Prepare Day 3 Revival and Collection Integration Foundation
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Audited the Dig Area-to-Revival Chamber route, target stability, interaction accessibility, placeholder presentation, and authority boundaries.
+  - Added two-slot Collection presentation metadata backed by the temporary SpeciesConfig IDs, with stable ordering and Normal/Gold-only metadata.
+  - Added immutable client-only RevivalResult examples plus collection and result preview hooks inside the existing interaction shell.
+- **Files ảnh hưởng:**
+  - `src/shared/Config/CollectionConfig.luau` (new)
+  - `src/client/Services/InteractionShellService/RevivalPreviewFixtures.luau` (new)
+  - `src/client/Services/InteractionShellService/InteractionUiShell.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - No world change was justified. The Revival Chamber is directly reachable, clearly scaled, and already uses the stable `RevivalChamber` target.
+  - Preview fixtures follow the contracted RevivalResult fields but are immutable local examples, not authoritative results.
+  - Collection preview derives only temporary display rows for 0/2, 1/2, and 2/2; it stores no discovery state and does not determine duplicates.
+  - Production boundary: Dev 1 fossil ownership validation → RevivalService → RewardResolutionService → validated RevivalResult → Dev 3 onboarding/collection integration → Dev 2 reveal presentation.
+- **Trạng thái:** Dev 3 Day 3 foundation ready for Studio smoke testing; production Revival remains incomplete.
+- **Bước tiếp theo:**
+  - Replace preview inputs only after authoritative result delivery and collection schemas are contracted.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - **WAITING DEV1:** RevivalService, RewardResolutionService, authoritative species and Normal/Gold resolution, New Discovery/Duplicate determination, and validated RevivalResult delivery.
+  - **WAITING DEV2:** Revival UI/animation, species and Gold reveals, New Discovery/Duplicate presentation, and final Collection UI if assigned.
+  - **TBD CONTRACT:** final species IDs, authoritative collection/discovery schema, and production result replication/network path.
+  - **READY TO INTEGRATE:** Revival Chamber target, Day 3 onboarding preview boundary, Collection presentation config, immutable fixtures, collection preview, and Day 3 timing hooks.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]
