@@ -69,7 +69,7 @@ local states: PresentationEntries = {
 	},
 	ResearchComplete = {
 		title = "RESEARCH COMPLETE",
-		instruction = "Your research has reached a breakthrough.",
+		instruction = "Research is complete. See what comes next.",
 		target = "ResearchMachine",
 	},
 	Breakthrough = {

@@ -13,10 +13,12 @@ local InteractionUiShell = require(script:WaitForChild("InteractionUiShell"))
 local OnboardingTargetGuidance = require(script:WaitForChild("OnboardingTargetGuidance"))
 local FirstSessionTimingTracker = require(script:WaitForChild("FirstSessionTimingTracker"))
 local RevivalPreviewFixtures = require(script:WaitForChild("RevivalPreviewFixtures"))
+local ResearchPreviewFixtures = require(script:WaitForChild("ResearchPreviewFixtures"))
 local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
 local CollectionConfig = require(sharedConfig:WaitForChild("CollectionConfig"))
 local FirstSessionConfig = require(sharedConfig:WaitForChild("FirstSessionConfig"))
 local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
+local ResearchPresentationConfig = require(sharedConfig:WaitForChild("ResearchPresentationConfig"))
 local SpeciesConfig = require(sharedConfig:WaitForChild("SpeciesConfig"))
 
 type InteractionKind = "Dig" | "Revival" | "Research" | "Gate"
@@ -37,6 +39,7 @@ local previewRequestConnection: RBXScriptConnection? = nil
 local timingReportRequestConnection: RBXScriptConnection? = nil
 local revivalPreviewRequestConnection: RBXScriptConnection? = nil
 local collectionPreviewRequestConnection: RBXScriptConnection? = nil
+local researchPreviewRequestConnection: RBXScriptConnection? = nil
 local timingTracker: any = nil
 
 local PREVIEW_STATE_ATTRIBUTE = "Dev3PreviewState"
@@ -46,6 +49,8 @@ local REVIVAL_PREVIEW_NAME_ATTRIBUTE = "Dev3RevivalPreviewName"
 local REVIVAL_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3RevivalPreviewRequestId"
 local COLLECTION_PREVIEW_COUNT_ATTRIBUTE = "Dev3CollectionPreviewCount"
 local COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3CollectionPreviewRequestId"
+local RESEARCH_PREVIEW_NAME_ATTRIBUTE = "Dev3ResearchPreviewName"
+local RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3ResearchPreviewRequestId"
 
 local function cleanup()
 	if promptConnection then
@@ -71,6 +76,11 @@ local function cleanup()
 	if collectionPreviewRequestConnection then
 		collectionPreviewRequestConnection:Disconnect()
 		collectionPreviewRequestConnection = nil
+	end
+
+	if researchPreviewRequestConnection then
+		researchPreviewRequestConnection:Disconnect()
+		researchPreviewRequestConnection = nil
 	end
 
 	if targetGuidance then
@@ -136,6 +146,21 @@ local function applyCollectionPreview(discoveredCount: number): boolean
 	return true
 end
 
+local function applyResearchPreview(fixtureName: string): boolean
+	local fixture = ResearchPreviewFixtures[fixtureName]
+	if not fixture or not previewUi then
+		return false
+	end
+
+	previewUi.showResearchPreview(
+		ResearchPresentationConfig.placeholder.instruction,
+		fixture.displayProgress,
+		fixture.statusLabel
+	)
+	print(string.format("[ResearchPreview] %s: %s", fixtureName, fixture.displayProgress))
+	return true
+end
+
 -- DEV PREVIEW ONLY. Displays a named immutable fixture and changes no authoritative state.
 function InteractionShellService.previewRevivalResult(fixtureName: string): boolean
 	if RevivalPreviewFixtures[fixtureName] == nil then
@@ -179,6 +204,29 @@ function InteractionShellService.previewCollection(discoveredCount: number): boo
 	screenGui:SetAttribute(COLLECTION_PREVIEW_COUNT_ATTRIBUTE, discoveredCount)
 	local requestId = screenGui:GetAttribute(COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE)
 	screenGui:SetAttribute(COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
+	return true
+end
+
+-- DEV PREVIEW ONLY. Displays a static example and never changes Research or onboarding state.
+function InteractionShellService.previewResearch(fixtureName: string): boolean
+	if ResearchPreviewFixtures[fixtureName] == nil then
+		warn(string.format("[ResearchPreview] Unknown fixture %q", fixtureName))
+		return false
+	end
+
+	if previewUi then
+		return applyResearchPreview(fixtureName)
+	end
+
+	local screenGui = getPreviewScreenGui()
+	if not screenGui then
+		warn("[ResearchPreview] UI shell is not initialized")
+		return false
+	end
+
+	screenGui:SetAttribute(RESEARCH_PREVIEW_NAME_ATTRIBUTE, fixtureName)
+	local requestId = screenGui:GetAttribute(RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
 	return true
 end
 
@@ -286,6 +334,12 @@ function InteractionShellService.init()
 		local discoveredCount = screenGui:GetAttribute(COLLECTION_PREVIEW_COUNT_ATTRIBUTE)
 		if type(discoveredCount) == "number" then
 			applyCollectionPreview(discoveredCount)
+		end
+	end)
+	researchPreviewRequestConnection = screenGui:GetAttributeChangedSignal(RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE):Connect(function()
+		local fixtureName = screenGui:GetAttribute(RESEARCH_PREVIEW_NAME_ATTRIBUTE)
+		if type(fixtureName) == "string" then
+			applyResearchPreview(fixtureName)
 		end
 	end)
 	InteractionShellService.setPreviewState("FirstDig")

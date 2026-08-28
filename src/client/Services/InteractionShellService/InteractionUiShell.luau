@@ -242,7 +242,7 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 	end
 
 	function shell.showResearchPanel()
-		showPanel("RESEARCH", "Duplicates can be contributed to research.", nil, "0 / 2")
+		showPanel("RESEARCH — DEV PREVIEW", "Duplicates can contribute to Research.", nil, "Waiting for authoritative Research data")
 	end
 
 	function shell.showGatePanel()
@@ -260,6 +260,10 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 			string.format("%d / %d Species", discoveredCount, totalCount),
 			table.concat(slotLines, "\n")
 		)
+	end
+
+	function shell.showResearchPreview(instruction: string, displayProgress: string, statusLabel: string)
+		showPanel("RESEARCH — DEV PREVIEW", instruction, displayProgress, statusLabel)
 	end
 
 	function shell.isPanelOpen(): boolean

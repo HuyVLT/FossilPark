@@ -487,6 +487,33 @@
   - **TBD CONTRACT:** final species IDs, authoritative collection/discovery schema, and production result replication/network path.
   - **READY TO INTEGRATE:** Revival Chamber target, Day 3 onboarding preview boundary, Collection presentation config, immutable fixtures, collection preview, and Day 3 timing hooks.
 
+### [2026-08-28] - Prepare Day 4 Duplicate to Research Progression Foundation
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Audited Research Machine placement, route clarity, interaction range, stable target naming, and existing placeholder authority behavior.
+  - Added compact Research presentation metadata and immutable client-only prompt/incomplete/complete fixtures.
+  - Added a Research preview hook through the existing interaction shell without changing onboarding or Research state.
+- **Files ảnh hưởng:**
+  - `src/shared/Config/ResearchPresentationConfig.luau` (new)
+  - `src/client/Services/InteractionShellService/ResearchPreviewFixtures.luau` (new)
+  - `src/shared/Config/OnboardingPresentationConfig.luau`
+  - `src/client/Services/InteractionShellService/InteractionUiShell.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - No world change was justified. ResearchMachine remains visible and accessible beside RevivalChamber through the existing `RevivalToResearchPath`.
+  - Fixture values are explicitly local display examples and are not the TBD production ResearchProgress payload.
+  - Research preview never consumes a Duplicate, changes progress, completes Research, grants Breakthrough, or unlocks Pulse.
+  - Day 5 boundary: authoritative ResearchComplete → future Dev 1 Breakthrough logic → future Breakthrough onboarding → future Pulse unlock.
+- **Trạng thái:** Dev 3 Day 4 foundation ready for Studio smoke testing; authoritative Research remains incomplete.
+- **Bước tiếp theo:**
+  - Replace preview inputs only after Dev 1 ResearchService and the production schemas/replication path are contracted.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - **WAITING DEV1:** authoritative Duplicate representation, ResearchService, eligibility and feed validation, duplicate consumption, authoritative progress, and ResearchComplete delivery.
+  - **WAITING DEV2:** final Duplicate presentation, Research UI/progress UI, and ResearchComplete feedback.
+  - **TBD CONTRACT:** Research request payload, progress/result payload, authoritative Research replication path, and Collection/Fossils fields used by Research.
+  - **READY TO INTEGRATE:** ResearchMachine target, ResearchPrompt guidance, placeholder presentation, dev fixtures, timing hooks, and ResearchComplete onboarding boundary.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]
