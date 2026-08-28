@@ -369,6 +369,39 @@
 - **Yêu cầu phối hợp với Dev 1 & Dev 2:**
   - Dev 1: review `DEV1_INTEGRATION_HANDOFF.md` before integration. Dev 2: replace temporary UI presentation when final UX work begins.
 
+### [2026-08-28] - Add Interaction Shell Startup Diagnostics
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Added client loader warnings for service require, return-shape, and initialization failures.
+  - Added one-time InteractionShell startup diagnostics for UI, Site1Blockout, target resolution, and readiness.
+- **Files ảnh hưởng:**
+  - `src/client/init.client.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - The client service loader keeps the same discovery rules. Diagnostics do not add networking, gameplay, or onboarding authority behavior.
+- **Trạng thái:** Awaiting Studio smoke-test confirmation.
+- **Bước tiếp theo:**
+  - Use Studio Output to identify any exact initialization failure before additional changes.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - None.
+
+### [2026-08-28] - Fix Interaction Shell Service-Local Module Paths
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Fixed the migrated `InteractionShellService` entry module to resolve its UI and guidance children from the runtime service ModuleScript itself.
+- **Files ảnh hưởng:**
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - Rojo maps the folder's `init.luau` to the `InteractionShellService` ModuleScript; sibling source modules become its children. `script.Parent` therefore points to `Client.Services`, where `InteractionUiShell` does not exist.
+  - `OnboardingTargetGuidance` continues to use `script.Parent` correctly because it is itself a child of `InteractionShellService`.
+- **Trạng thái:** Ready for Studio smoke test; no gameplay, networking, or authoritative state behavior changed.
+- **Bước tiếp theo:**
+  - Confirm the four startup target logs and proximity prompts in Studio Output.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - None.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]

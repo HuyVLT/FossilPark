@@ -9,8 +9,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local InteractionUiShell = require(script.Parent:WaitForChild("InteractionUiShell"))
-local OnboardingTargetGuidance = require(script.Parent:WaitForChild("OnboardingTargetGuidance"))
+local InteractionUiShell = require(script:WaitForChild("InteractionUiShell"))
+local OnboardingTargetGuidance = require(script:WaitForChild("OnboardingTargetGuidance"))
 local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
 local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
 
@@ -67,15 +67,18 @@ end
 
 function InteractionShellService.init()
 	cleanup()
+	print("[InteractionShell] Initializing")
 
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 	local ui = InteractionUiShell.new(playerGui)
 	previewUi = ui
+	print("[InteractionShell] UI ready")
 	targetGuidance = OnboardingTargetGuidance.new(player, ui)
 	InteractionShellService.setPreviewState("FirstDig")
 
 	local blockout = Workspace:WaitForChild("Site1Blockout")
+	print("[InteractionShell] Found Site1Blockout")
 	local targets: { InteractionTarget } = {
 	{
 		kind = "Dig",
@@ -116,6 +119,14 @@ function InteractionShellService.init()
 		end
 
 		return nil
+	end
+
+	for _, target in ipairs(targets) do
+		if getWorldPosition(target.instance) then
+			print(string.format("[InteractionShell] Target %s resolved", target.instance.Name))
+		else
+			warn(string.format("[InteractionShell] Target %s has no usable world position", target.instance.Name))
+		end
 	end
 
 	local function updatePrompt()
@@ -179,6 +190,7 @@ function InteractionShellService.init()
 	ContextActionService:BindAction("Dev3PlaceholderInteract", activateInteraction, false, Enum.KeyCode.E)
 
 	promptConnection = RunService.RenderStepped:Connect(updatePrompt)
+	print(string.format("[InteractionShell] Ready - %d interaction targets available", #targets))
 end
 
 return InteractionShellService

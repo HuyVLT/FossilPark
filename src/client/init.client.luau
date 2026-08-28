@@ -6,9 +6,16 @@ local function loadServices(container)
 			else nil
 
 		if module then
-			local ok, service = pcall(require, module)
-			if ok and type(service) == "table" and type(service.init) == "function" then
-				service.init()
+			local loaded, serviceOrError = pcall(require, module)
+			if not loaded then
+				warn(string.format("[ClientLoader] Failed to require %s: %s", child.Name, tostring(serviceOrError)))
+			elseif type(serviceOrError) ~= "table" or type(serviceOrError.init) ~= "function" then
+				warn(string.format("[ClientLoader] %s does not return a service table with init()", child.Name))
+			else
+				local initialized, initError = pcall(serviceOrError.init)
+				if not initialized then
+					warn(string.format("[ClientLoader] Failed to initialize %s: %s", child.Name, tostring(initError)))
+				end
 			end
 		end
 	end
