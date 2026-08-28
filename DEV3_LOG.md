@@ -402,6 +402,22 @@
 - **Yêu cầu phối hợp với Dev 1 & Dev 2:**
   - None.
 
+### [2026-08-28] - Fix Command Bar Onboarding Preview State Access
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Routed Command Bar preview requests through attributes on the existing client-only `Dev3InteractionShell` ScreenGui to the already initialized interaction service.
+- **Files ảnh hưởng:**
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - `previewUi` is correctly assigned in the production-loaded service and is not shadowed. A Client Command Bar module require has separate module state, so it cannot access that local variable directly.
+  - The bridge is preview-only, local to the client, and reuses the existing UI plus guidance instance. It does not initialize a second service, create UI/highlight duplicates, or communicate with the server.
+- **Trạng thái:** Ready for Studio preview retest.
+- **Bước tiếp theo:**
+  - Run the five `setPreviewState` Client Command Bar calls without manually calling `init()`.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - None.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]

@@ -28,11 +28,20 @@ local InteractionShellService = {}
 local previewUi: any = nil
 local targetGuidance: any = nil
 local promptConnection: RBXScriptConnection? = nil
+local previewRequestConnection: RBXScriptConnection? = nil
+
+local PREVIEW_STATE_ATTRIBUTE = "Dev3PreviewState"
+local PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3PreviewRequestId"
 
 local function cleanup()
 	if promptConnection then
 		promptConnection:Disconnect()
 		promptConnection = nil
+	end
+
+	if previewRequestConnection then
+		previewRequestConnection:Disconnect()
+		previewRequestConnection = nil
 	end
 
 	if targetGuidance then
@@ -44,6 +53,25 @@ local function cleanup()
 	previewUi = nil
 end
 
+local function applyPreviewState(stateName: string): boolean
+	local presentation = OnboardingPresentationConfig.getPresentation(stateName)
+	if not presentation then
+		warn(string.format("[OnboardingPreview] Unknown preview state %q", stateName))
+		return false
+	end
+
+	if not previewUi then
+		return false
+	end
+
+	previewUi.setOnboardingObjective(presentation.title, presentation.instruction, presentation.target)
+	if targetGuidance then
+		targetGuidance:setTarget(presentation.target)
+	end
+	print(string.format("[OnboardingPreview] %s", stateName))
+	return true
+end
+
 -- DEV PREVIEW ONLY
 -- Replace with server-authoritative onboarding state replication after networking contract is finalized.
 function InteractionShellService.setPreviewState(stateName: string): boolean
@@ -53,15 +81,22 @@ function InteractionShellService.setPreviewState(stateName: string): boolean
 		return false
 	end
 
-	if not previewUi then
+	if previewUi then
+		return applyPreviewState(stateName)
+	end
+
+	local player = Players.LocalPlayer
+	local playerGui = player and player:FindFirstChildOfClass("PlayerGui")
+	local screenGui = playerGui and playerGui:FindFirstChild("Dev3InteractionShell")
+	if not screenGui or not screenGui:IsA("ScreenGui") then
 		warn("[OnboardingPreview] UI shell is not initialized")
 		return false
 	end
 
-	previewUi.setOnboardingObjective(presentation.title, presentation.instruction, presentation.target)
-	if targetGuidance then
-		targetGuidance:setTarget(presentation.target)
-	end
+	-- Client Command Bar can have separate ModuleScript state. Signal the already initialized service through its UI instance.
+	screenGui:SetAttribute(PREVIEW_STATE_ATTRIBUTE, stateName)
+	local requestId = screenGui:GetAttribute(PREVIEW_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
 	return true
 end
 
@@ -75,6 +110,13 @@ function InteractionShellService.init()
 	previewUi = ui
 	print("[InteractionShell] UI ready")
 	targetGuidance = OnboardingTargetGuidance.new(player, ui)
+	local screenGui = playerGui:WaitForChild("Dev3InteractionShell")
+	previewRequestConnection = screenGui:GetAttributeChangedSignal(PREVIEW_REQUEST_ID_ATTRIBUTE):Connect(function()
+		local requestedState = screenGui:GetAttribute(PREVIEW_STATE_ATTRIBUTE)
+		if type(requestedState) == "string" then
+			applyPreviewState(requestedState)
+		end
+	end)
 	InteractionShellService.setPreviewState("FirstDig")
 
 	local blockout = Workspace:WaitForChild("Site1Blockout")
