@@ -1,6 +1,8 @@
+-- CONTRACT CONFLICT: preserved remote prototype; deliberately outside Client.Services and not loaded.
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Remotes = require(ReplicatedStorage.Shared.Networking.Remotes).init()
+local Remotes = require(ReplicatedStorage.Shared.Experimental.Networking.Remotes).init()
 
 local RNGClientService = {}
 RNGClientService.__index = RNGClientService

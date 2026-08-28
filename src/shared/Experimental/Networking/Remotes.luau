@@ -1,3 +1,5 @@
+-- CONTRACT CONFLICT: preserved remote prototype; no runtime service loads this module.
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 

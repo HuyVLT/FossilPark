@@ -1,3 +1,5 @@
+-- CONTRACT CONFLICT: preserved remote prototype; not part of Vertical Slice v1.
+
 return {
 	TriggerTag = "RNGTrigger",
 	Range = 12,

@@ -1,7 +1,10 @@
+-- CONTRACT CONFLICT: preserved remote RNG prototype. It is deliberately outside Server.Services
+-- and must not run until its remote name, payload, and reward outcomes are approved by all developers.
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 
-local Remotes = require(ReplicatedStorage.Shared.Networking.Remotes).init()
+local Remotes = require(ReplicatedStorage.Shared.Experimental.Networking.Remotes).init()
 local Config = require(script.Config)
 
 local RNGService = {}
