@@ -11,7 +11,9 @@ local Workspace = game:GetService("Workspace")
 
 local InteractionUiShell = require(script:WaitForChild("InteractionUiShell"))
 local OnboardingTargetGuidance = require(script:WaitForChild("OnboardingTargetGuidance"))
+local FirstSessionTimingTracker = require(script:WaitForChild("FirstSessionTimingTracker"))
 local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
+local FirstSessionConfig = require(sharedConfig:WaitForChild("FirstSessionConfig"))
 local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
 
 type InteractionKind = "Dig" | "Revival" | "Research" | "Gate"
@@ -29,9 +31,12 @@ local previewUi: any = nil
 local targetGuidance: any = nil
 local promptConnection: RBXScriptConnection? = nil
 local previewRequestConnection: RBXScriptConnection? = nil
+local timingReportRequestConnection: RBXScriptConnection? = nil
+local timingTracker: any = nil
 
 local PREVIEW_STATE_ATTRIBUTE = "Dev3PreviewState"
 local PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3PreviewRequestId"
+local TIMING_REPORT_REQUEST_ID_ATTRIBUTE = "Dev3TimingReportRequestId"
 
 local function cleanup()
 	if promptConnection then
@@ -44,6 +49,11 @@ local function cleanup()
 		previewRequestConnection = nil
 	end
 
+	if timingReportRequestConnection then
+		timingReportRequestConnection:Disconnect()
+		timingReportRequestConnection = nil
+	end
+
 	if targetGuidance then
 		targetGuidance:destroy()
 		targetGuidance = nil
@@ -51,6 +61,7 @@ local function cleanup()
 
 	ContextActionService:UnbindAction("Dev3PlaceholderInteract")
 	previewUi = nil
+	timingTracker = nil
 end
 
 local function applyPreviewState(stateName: string): boolean
@@ -68,7 +79,30 @@ local function applyPreviewState(stateName: string): boolean
 	if targetGuidance then
 		targetGuidance:setTarget(presentation.target)
 	end
+	if timingTracker then
+		timingTracker:recordMilestone(stateName)
+	end
 	print(string.format("[OnboardingPreview] %s", stateName))
+	return true
+end
+
+-- DEV PLAYTEST ONLY. Prints timestamps from the already initialized local tracker.
+function InteractionShellService.printTimingReport(): boolean
+	if timingTracker then
+		timingTracker:printReport(FirstSessionConfig.timingMilestones)
+		return true
+	end
+
+	local player = Players.LocalPlayer
+	local playerGui = player and player:FindFirstChildOfClass("PlayerGui")
+	local screenGui = playerGui and playerGui:FindFirstChild("Dev3InteractionShell")
+	if not screenGui or not screenGui:IsA("ScreenGui") then
+		warn("[FirstSessionTiming] UI shell is not initialized")
+		return false
+	end
+
+	local requestId = screenGui:GetAttribute(TIMING_REPORT_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(TIMING_REPORT_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
 	return true
 end
 
@@ -108,6 +142,8 @@ function InteractionShellService.init()
 	local playerGui = player:WaitForChild("PlayerGui")
 	local ui = InteractionUiShell.new(playerGui)
 	previewUi = ui
+	timingTracker = FirstSessionTimingTracker.new(FirstSessionConfig.timingMilestones, FirstSessionConfig.playtest.timingTrackerEnabledInStudio)
+	timingTracker:recordMilestone("Spawn")
 	print("[InteractionShell] UI ready")
 	targetGuidance = OnboardingTargetGuidance.new(player, ui)
 	local screenGui = playerGui:WaitForChild("Dev3InteractionShell")
@@ -117,34 +153,39 @@ function InteractionShellService.init()
 			applyPreviewState(requestedState)
 		end
 	end)
+	timingReportRequestConnection = screenGui:GetAttributeChangedSignal(TIMING_REPORT_REQUEST_ID_ATTRIBUTE):Connect(function()
+		if timingTracker then
+			timingTracker:printReport(FirstSessionConfig.timingMilestones)
+		end
+	end)
 	InteractionShellService.setPreviewState("FirstDig")
 
-	local blockout = Workspace:WaitForChild("Site1Blockout")
+	local blockout = Workspace:WaitForChild(FirstSessionConfig.landmarks.blockoutFolder)
 	print("[InteractionShell] Found Site1Blockout")
 	local targets: { InteractionTarget } = {
 	{
 		kind = "Dig",
-		instance = blockout:WaitForChild("DigArea"),
+		instance = blockout:WaitForChild(FirstSessionConfig.landmarks.digArea),
 		promptTitle = "[E] Dig",
-		range = 48,
+		range = FirstSessionConfig.interactionRanges.Dig,
 	},
 	{
 		kind = "Revival",
-		instance = blockout:WaitForChild("RevivalChamber"),
+		instance = blockout:WaitForChild(FirstSessionConfig.landmarks.revivalChamber),
 		promptTitle = "[E] Use Revival Chamber",
-		range = 34,
+		range = FirstSessionConfig.interactionRanges.Revival,
 	},
 	{
 		kind = "Research",
-		instance = blockout:WaitForChild("ResearchMachine"),
+		instance = blockout:WaitForChild(FirstSessionConfig.landmarks.researchMachine),
 		promptTitle = "[E] Open Research",
-		range = 28,
+		range = FirstSessionConfig.interactionRanges.Research,
 	},
 	{
 		kind = "Gate",
-		instance = blockout:WaitForChild("Site2Gate"),
+		instance = blockout:WaitForChild(FirstSessionConfig.landmarks.site2Gate),
 		promptTitle = "[E] Inspect Site 2 Gate",
-		range = 48,
+		range = FirstSessionConfig.interactionRanges.Gate,
 	},
 	}
 

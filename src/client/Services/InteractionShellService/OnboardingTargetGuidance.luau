@@ -3,11 +3,13 @@
 -- DEV PREVIEW ONLY. This module presents local target guidance and owns no onboarding state.
 
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local OnboardingTargetResolver = require(script.Parent:WaitForChild("OnboardingTargetResolver"))
+local FirstSessionConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"):WaitForChild("FirstSessionConfig"))
 
-local DISTANCE_UPDATE_INTERVAL = 0.25
+local DISTANCE_UPDATE_INTERVAL = FirstSessionConfig.guidance.distanceUpdateInterval
 local HIGHLIGHT_NAME = "Dev3OnboardingTargetHighlight"
 
 local OnboardingTargetGuidance = {}

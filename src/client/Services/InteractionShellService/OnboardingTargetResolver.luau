@@ -3,13 +3,16 @@
 -- Client-only lookup for the named Site 1 blockout targets used by onboarding presentation.
 
 local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local BLOCKOUT_FOLDER_NAME = "Site1Blockout"
+local FirstSessionConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"):WaitForChild("FirstSessionConfig"))
+
+local BLOCKOUT_FOLDER_NAME = FirstSessionConfig.landmarks.blockoutFolder
 local supportedTargets: { [string]: boolean } = {
-	DigArea = true,
-	RevivalChamber = true,
-	ResearchMachine = true,
-	Site2Gate = true,
+	[FirstSessionConfig.landmarks.digArea] = true,
+	[FirstSessionConfig.landmarks.revivalChamber] = true,
+	[FirstSessionConfig.landmarks.researchMachine] = true,
+	[FirstSessionConfig.landmarks.site2Gate] = true,
 }
 local warnedKeys: { [string]: boolean } = {}
 

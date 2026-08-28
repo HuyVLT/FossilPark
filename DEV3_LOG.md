@@ -418,6 +418,49 @@
 - **Yêu cầu phối hợp với Dev 1 & Dev 2:**
   - None.
 
+### [2026-08-28] - Create Team Day-by-Day Roadmap
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Reviewed the current repository, contracts, Dev 3 implementation history, and Dev 1 handoff.
+  - Created a practical 10-day shared roadmap for Dev 1, Dev 2, and Dev 3 with evidence-based statuses, integration points, Studio tests, exit criteria, and a current integration board.
+- **Files ảnh hưởng:**
+  - `TEAM_ROADMAP.md` (new)
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - Documentation only; no gameplay, networking, Remote, contract, or authority behavior changed.
+  - Existing Dev 3 foundations are distinguished from production integration, and unresolved payloads/schemas remain explicitly marked `TBD CONTRACT`.
+- **Trạng thái:** Completed; ready for team review.
+- **Bước tiếp theo:**
+  - Team confirms Day 1 exit criteria and resolves Contract Day blockers before production integration.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - Dev 1: confirm authoritative domain-event and replication boundaries. Dev 2: confirm the temporary presentation replacement boundary.
+
+### [2026-08-28] - Prepare Day 2 Dig Area Integration and First 10 Minutes Foundation
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Audited the Spawn-to-Dig-to-Revival route, placeholder rock spacing, stable target names, onboarding presentation, and preview boundary.
+  - Added shared presentation/playtest configuration for Site 1 landmark IDs, interaction ranges, guidance cadence, and all First 10 Minutes timing milestones.
+  - Added a Studio-only local timing tracker and preview/report hooks without initializing a second interaction service.
+- **Files ảnh hưởng:**
+  - `src/shared/Config/FirstSessionConfig.luau` (new)
+  - `src/client/Services/InteractionShellService/FirstSessionTimingTracker.luau` (new)
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `src/client/Services/InteractionShellService/OnboardingTargetResolver.luau`
+  - `src/client/Services/InteractionShellService/OnboardingTargetGuidance.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - No world geometry change was justified: the spawn faces the Dig Area, routes are unobstructed, rocks are spaced across the excavation surface, and the Revival Chamber is directly reachable along the existing path.
+  - Timing is local, Studio-only, non-persistent, and records preview milestones only. It grants no rewards and owns no gameplay or onboarding state.
+  - `FirstDig` continues to target `DigArea`; `FirstFossil` continues to target `RevivalChamber`. Proximity never advances onboarding.
+- **Trạng thái:** Dev 3 Day 2 foundation ready for Studio smoke testing; full Day 2 remains incomplete.
+- **Bước tiếp theo:**
+  - Integrate only after Dev 1 provides authoritative Dig/Rock/Fossil events and the team agrees on production onboarding replication.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - **WAITING DEV1:** authoritative Dig, Rock state, fossil reward, and validated first-fossil event.
+  - **WAITING DEV2:** Strike input, rock feedback, Weak Point presentation, and break/fossil presentation.
+  - **TBD CONTRACT:** production onboarding replication/network path.
+  - **READY TO INTEGRATE:** stable Site 1 landmark config, Dig/Revival targeting, presentation preview, interaction ranges, and Studio timing milestones.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]
