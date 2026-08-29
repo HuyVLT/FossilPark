@@ -1,0 +1,15 @@
+# DEV2 LOG
+
+## CURRENT:
+
+## DONE:
+
+## DOING:
+
+## BLOCKED:
+
+## READY TO INTEGRATE:
+
+## TBD CONTRACT:
+
+## NOTES:

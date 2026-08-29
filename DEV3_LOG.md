@@ -514,6 +514,27 @@
   - **TBD CONTRACT:** Research request payload, progress/result payload, authoritative Research replication path, and Collection/Fossils fields used by Research.
   - **READY TO INTEGRATE:** ResearchMachine target, ResearchPrompt guidance, placeholder presentation, dev fixtures, timing hooks, and ResearchComplete onboarding boundary.
 
+### [2026-08-29] - Establish Permanent Repository Project Memory
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Added `PROJECT_MEMORY.md` as the shared Human + AI routing/context layer with an evidence-based Current State Ledger.
+  - Added missing minimal Dev 1/Dev 2 log and general integration handoff templates, and made README the repository entry point.
+- **Files ảnh hưởng:**
+  - `PROJECT_MEMORY.md` (new)
+  - `README.md`
+  - `DEV1_LOG.md` (new)
+  - `DEV2_LOG.md` (new)
+  - `INTEGRATION_HANDOFF.md` (new)
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - `PROJECT_MEMORY.md` is the shared router and continuity layer; it does not replace `CONTRACTS.md`, `AGENTS.md`, current source, or owner-specific logs.
+  - `DEV3_LOG.md` remains the detailed Dev 3 implementation memory. Unsupported Dev 1/Dev 2 status is explicitly marked `UNKNOWN` instead of guessed.
+- **Trạng thái:** Completed documentation foundation; no gameplay, networking, schema, or service architecture changed.
+- **Bước tiếp theo:**
+  - Dev 1 and Dev 2 populate their logs; the team reviews and maintains the Current State Ledger after verified milestone changes.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - Confirm current work status and resolve the contracts listed in `PROJECT_MEMORY.md` and `CONTRACTS.md` before production integration.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]
