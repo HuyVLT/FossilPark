@@ -266,6 +266,10 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 		showPanel("RESEARCH — DEV PREVIEW", instruction, displayProgress, statusLabel)
 	end
 
+	function shell.showBreakthroughPreview(instruction: string, detail: string, statusLabel: string)
+		showPanel("BREAKTHROUGH — DEV PREVIEW", instruction, detail, statusLabel)
+	end
+
 	function shell.isPanelOpen(): boolean
 		return panel.Visible
 	end

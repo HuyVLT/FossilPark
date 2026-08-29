@@ -2,6 +2,8 @@
 
 -- Temporary presentation copy only. OnboardingService remains the authoritative state owner.
 
+local BreakthroughPresentationConfig = require(script.Parent:WaitForChild("BreakthroughPresentationConfig"))
+
 export type OnboardingState =
 	"FirstDig"
 	| "FirstFossil"
@@ -68,21 +70,21 @@ local states: PresentationEntries = {
 		target = "ResearchMachine",
 	},
 	ResearchComplete = {
-		title = "RESEARCH COMPLETE",
-		instruction = "Research is complete. See what comes next.",
+		title = BreakthroughPresentationConfig.onboarding.ResearchComplete.title,
+		instruction = BreakthroughPresentationConfig.onboarding.ResearchComplete.instruction,
 		target = "ResearchMachine",
 	},
 	Breakthrough = {
-		title = "BREAKTHROUGH",
-		instruction = "A new excavation tool is becoming available.",
+		title = BreakthroughPresentationConfig.onboarding.Breakthrough.title,
+		instruction = BreakthroughPresentationConfig.onboarding.Breakthrough.instruction,
 	},
 	PulseUnlocked = {
-		title = "PULSE MODULE",
-		instruction = "The Pulse Module is now unlocked.",
+		title = BreakthroughPresentationConfig.onboarding.PulseUnlocked.title,
+		instruction = BreakthroughPresentationConfig.onboarding.PulseUnlocked.instruction,
 	},
 	FreePlay = {
-		title = "EXPLORE",
-		instruction = "Continue excavating and discovering fossils.",
+		title = BreakthroughPresentationConfig.onboarding.FreePlay.title,
+		instruction = BreakthroughPresentationConfig.onboarding.FreePlay.instruction,
 	},
 	GateSeen = {
 		title = "SITE 2",

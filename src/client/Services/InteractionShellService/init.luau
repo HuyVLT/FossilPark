@@ -12,10 +12,12 @@ local Workspace = game:GetService("Workspace")
 local InteractionUiShell = require(script:WaitForChild("InteractionUiShell"))
 local OnboardingTargetGuidance = require(script:WaitForChild("OnboardingTargetGuidance"))
 local FirstSessionTimingTracker = require(script:WaitForChild("FirstSessionTimingTracker"))
+local BreakthroughPreviewFixtures = require(script:WaitForChild("BreakthroughPreviewFixtures"))
 local RevivalPreviewFixtures = require(script:WaitForChild("RevivalPreviewFixtures"))
 local ResearchPreviewFixtures = require(script:WaitForChild("ResearchPreviewFixtures"))
 local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
 local CollectionConfig = require(sharedConfig:WaitForChild("CollectionConfig"))
+local BreakthroughPresentationConfig = require(sharedConfig:WaitForChild("BreakthroughPresentationConfig"))
 local FirstSessionConfig = require(sharedConfig:WaitForChild("FirstSessionConfig"))
 local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
 local ResearchPresentationConfig = require(sharedConfig:WaitForChild("ResearchPresentationConfig"))
@@ -40,6 +42,7 @@ local timingReportRequestConnection: RBXScriptConnection? = nil
 local revivalPreviewRequestConnection: RBXScriptConnection? = nil
 local collectionPreviewRequestConnection: RBXScriptConnection? = nil
 local researchPreviewRequestConnection: RBXScriptConnection? = nil
+local breakthroughPreviewRequestConnection: RBXScriptConnection? = nil
 local timingTracker: any = nil
 
 local PREVIEW_STATE_ATTRIBUTE = "Dev3PreviewState"
@@ -51,6 +54,8 @@ local COLLECTION_PREVIEW_COUNT_ATTRIBUTE = "Dev3CollectionPreviewCount"
 local COLLECTION_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3CollectionPreviewRequestId"
 local RESEARCH_PREVIEW_NAME_ATTRIBUTE = "Dev3ResearchPreviewName"
 local RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3ResearchPreviewRequestId"
+local BREAKTHROUGH_PREVIEW_NAME_ATTRIBUTE = "Dev3BreakthroughPreviewName"
+local BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3BreakthroughPreviewRequestId"
 
 local function cleanup()
 	if promptConnection then
@@ -81,6 +86,11 @@ local function cleanup()
 	if researchPreviewRequestConnection then
 		researchPreviewRequestConnection:Disconnect()
 		researchPreviewRequestConnection = nil
+	end
+
+	if breakthroughPreviewRequestConnection then
+		breakthroughPreviewRequestConnection:Disconnect()
+		breakthroughPreviewRequestConnection = nil
 	end
 
 	if targetGuidance then
@@ -161,6 +171,18 @@ local function applyResearchPreview(fixtureName: string): boolean
 	return true
 end
 
+local function applyBreakthroughPreview(fixtureName: string): boolean
+	local fixture = BreakthroughPreviewFixtures[fixtureName]
+	if not fixture or not previewUi then
+		return false
+	end
+
+	local statusLabel = BreakthroughPresentationConfig.previewLabels[fixture.presentationKey]
+	previewUi.showBreakthroughPreview(BreakthroughPresentationConfig.placeholder.instruction, fixture.detail, statusLabel)
+	print(string.format("[BreakthroughPreview] %s", fixtureName))
+	return true
+end
+
 -- DEV PREVIEW ONLY. Displays a named immutable fixture and changes no authoritative state.
 function InteractionShellService.previewRevivalResult(fixtureName: string): boolean
 	if RevivalPreviewFixtures[fixtureName] == nil then
@@ -227,6 +249,29 @@ function InteractionShellService.previewResearch(fixtureName: string): boolean
 	screenGui:SetAttribute(RESEARCH_PREVIEW_NAME_ATTRIBUTE, fixtureName)
 	local requestId = screenGui:GetAttribute(RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE)
 	screenGui:SetAttribute(RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
+	return true
+end
+
+-- DEV PREVIEW ONLY. Displays a static non-contract example and never changes onboarding, Research, or Pulse state.
+function InteractionShellService.previewBreakthrough(fixtureName: string): boolean
+	if BreakthroughPreviewFixtures[fixtureName] == nil then
+		warn(string.format("[BreakthroughPreview] Unknown fixture %q", fixtureName))
+		return false
+	end
+
+	if previewUi then
+		return applyBreakthroughPreview(fixtureName)
+	end
+
+	local screenGui = getPreviewScreenGui()
+	if not screenGui then
+		warn("[BreakthroughPreview] UI shell is not initialized")
+		return false
+	end
+
+	screenGui:SetAttribute(BREAKTHROUGH_PREVIEW_NAME_ATTRIBUTE, fixtureName)
+	local requestId = screenGui:GetAttribute(BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
 	return true
 end
 
@@ -340,6 +385,12 @@ function InteractionShellService.init()
 		local fixtureName = screenGui:GetAttribute(RESEARCH_PREVIEW_NAME_ATTRIBUTE)
 		if type(fixtureName) == "string" then
 			applyResearchPreview(fixtureName)
+		end
+	end)
+	breakthroughPreviewRequestConnection = screenGui:GetAttributeChangedSignal(BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE):Connect(function()
+		local fixtureName = screenGui:GetAttribute(BREAKTHROUGH_PREVIEW_NAME_ATTRIBUTE)
+		if type(fixtureName) == "string" then
+			applyBreakthroughPreview(fixtureName)
 		end
 	end)
 	InteractionShellService.setPreviewState("FirstDig")

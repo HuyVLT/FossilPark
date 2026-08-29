@@ -514,6 +514,33 @@
   - **TBD CONTRACT:** Research request payload, progress/result payload, authoritative Research replication path, and Collection/Fossils fields used by Research.
   - **READY TO INTEGRATE:** ResearchMachine target, ResearchPrompt guidance, placeholder presentation, dev fixtures, timing hooks, and ResearchComplete onboarding boundary.
 
+### [2026-08-29] - Prepare Day 5 Breakthrough and Pulse Integration Foundation
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Audited `ResearchComplete → Breakthrough → PulseUnlocked → FreePlay` presentation, targets, timing hooks, world flow, and ownership boundaries.
+  - Added compact Breakthrough/Pulse presentation metadata and immutable client-only presentation fixtures.
+  - Added a Breakthrough preview hook through the existing interaction shell without changing onboarding, Research, Breakthrough, Pulse, or Gate state.
+- **Files ảnh hưởng:**
+  - `src/shared/Config/BreakthroughPresentationConfig.luau` (new)
+  - `src/client/Services/InteractionShellService/BreakthroughPreviewFixtures.luau` (new)
+  - `src/shared/Config/OnboardingPresentationConfig.luau`
+  - `src/client/Services/InteractionShellService/InteractionUiShell.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - `ResearchComplete` briefly retains the `ResearchMachine` target. `Breakthrough`, `PulseUnlocked`, and `FreePlay` have no target, clearing stale Highlight and distance guidance without directing the player to Site 2.
+  - Breakthrough fixtures are static, local, non-contract presentation examples. Opening them records no milestone and performs no networking, reward, Research mutation, Pulse unlock, persistence, or onboarding transition.
+  - Only explicit `setPreviewState(...)` calls record Studio-local milestones once. `GateSeen` remains an independent official state and is never triggered automatically.
+  - Future production boundary remains: Dev 1 authoritative Research/Breakthrough/Pulse state → TBD replication → Dev 3 onboarding presentation → Dev 2 final UI/VFX. No production RemoteEvent was added.
+- **Trạng thái:** Day 5 Dev 3 progression foundation completed; production integration remains blocked on contracts and authoritative systems.
+- **Bước tiếp theo:**
+  - Integrate only after Dev 1 provides authoritative transitions and the team agrees on replication and Pulse contracts.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - **WAITING DEV1:** authoritative Breakthrough condition/result, Research-to-Breakthrough transition, PulseService, Pulse unlock, Pulse gameplay validation, and First Session Protection integration as applicable.
+  - **WAITING DEV2:** final Breakthrough reveal, Pulse unlock presentation, Pulse button/UI, and Pulse VFX/audio/camera feedback.
+  - **TBD CONTRACT:** Breakthrough result payload, Pulse unlock/state payload, server-to-client replication path, Pulse activation request/result contract, and exact GateSeen/First Session Protection production integration.
+  - **READY TO INTEGRATE:** Breakthrough/PulseUnlocked/FreePlay onboarding presentation, First 10 Minutes timing hooks, world/progression boundary, and dev-only presentation fixtures.
+
 ### [2026-08-29] - Establish Permanent Repository Project Memory
 - **Người thực hiện:** Dev 3
 - **Công việc thực hiện:**
