@@ -380,9 +380,13 @@ Milestones describe integration capability, not calendar days. Independent previ
 
 **LAST UPDATED:** 2026-08-29
 
-**CURRENT PRIMARY MILESTONE:** M5 — Dev 3 Breakthrough/Pulse/FreePlay presentation foundation is present as uncommitted work. Production milestones M2–M5 remain blocked on authoritative systems and contracts.
+**CURRENT PRIMARY MILESTONE:** M5 — Dev 3 Breakthrough/PulseUnlocked/FreePlay presentation and integration foundation is complete. Production M5 integration remains pending Dev 1 authority, Dev 2 final presentation, and contracted networking boundaries.
 
-**LAST STABLE INTEGRATION:** `43a0dd9` — `feat: add Dev3 research progression foundation` (HEAD; also referenced by `integration`, `origin/integration`, and `origin/dev3/world-progression` at inspection time).
+**PROJECT MEMORY BASELINE:** `d5bf8c63f944bfca74bf60fd75fedbb2d6f09e47` — `docs: add persistent project memory and AI routing`.
+
+**LAST STABLE DEV 3 CHECKPOINT:** `75f69847dcd606a62c6f351536c8c76942add39d` — `feat: add Dev3 breakthrough and freeplay foundation` on `dev3/world-progression`.
+
+**WORKING TREE AT CHECKPOINT:** Clean immediately after the Dev 3 Day 5 commit.
 
 ### Dev 1
 
@@ -431,17 +435,20 @@ Milestones describe integration capability, not calendar days. Independent previ
 - Exactly-two-Species config, basic Collection presentation config, and Revival preview fixtures.
 - First Session presentation/timing config and Studio-local record-once timing tracker.
 - Research presentation config/fixtures and Research journey foundation through `ResearchComplete` at stable HEAD.
+- M5 Day 5 presentation/integration foundation for `ResearchComplete → Breakthrough → PulseUnlocked → FreePlay`, including compact shared presentation metadata, immutable non-contract preview fixtures, target cleanup, and timing support.
+- Day 5 is presentation/integration foundation only. It does not implement authoritative Breakthrough resolution, Pulse unlock/activation, production networking, or persistent progression.
 - Dev 1 integration handoff and shared team roadmap.
 
 **DOING:**
 
-- Uncommitted M5 documentation/presentation foundation for `ResearchComplete → Breakthrough → PulseUnlocked → FreePlay`, including static non-contract fixtures.
-- Permanent repository memory/routing setup in this documentation task.
+- No uncommitted Dev 3 implementation was present immediately after checkpoint `75f6984`. The next production integration work remains dependency- and contract-gated.
 
 **BLOCKED:**
 
-- Production onboarding integration waits for validated Dev 1 domain events, persistence, and an agreed authoritative server-to-client onboarding state path.
-- Final interaction and reward presentation waits for Dev 2 production UI/VFX integration.
+- **WAITING DEV1:** authoritative Breakthrough condition/result, the Research-to-Breakthrough server transition, `PulseService`, authoritative Pulse unlock, and Pulse activation validation.
+- **WAITING DEV2:** final Breakthrough/Pulse presentation, UI, VFX, audio, and camera feedback where applicable.
+- **BLOCKED CONTRACT:** production Breakthrough/Pulse payloads and server-to-client replication path remain TBD.
+- **BLOCKED CONTRACT:** exact `GateSeen` / First Session Protection shutdown integration remains TBD.
 
 **READY TO INTEGRATE:**
 
