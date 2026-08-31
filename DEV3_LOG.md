@@ -562,6 +562,34 @@
 - **Yêu cầu phối hợp với Dev 1 & Dev 2:**
   - Confirm current work status and resolve the contracts listed in `PROJECT_MEMORY.md` and `CONTRACTS.md` before production integration.
 
+### [2026-08-31 15:45 +07:00] - Build Profile and Title Presentation Foundation
+- **Người thực hiện:** Dev 3
+- **Công việc thực hiện:**
+  - Audited existing Profile, Title, PlayerData, Collection, Species, staff/role, UI shell, and immutable preview patterns before implementation.
+  - Added minimal shared Profile presentation and Title metadata configs.
+  - Added four immutable client-only Profile fixtures and a `previewProfile(fixtureName)` entry point through the existing interaction shell.
+- **Files ảnh hưởng:**
+  - `src/shared/Config/TitleConfig.luau` (new)
+  - `src/shared/Config/ProfilePresentationConfig.luau` (new)
+  - `src/client/Services/InteractionShellService/ProfilePreviewFixtures.luau` (new)
+  - `src/client/Services/InteractionShellService/InteractionUiShell.luau`
+  - `src/client/Services/InteractionShellService/init.luau`
+  - `PROJECT_MEMORY.md`
+  - `DEV3_LOG.md`
+- **Quyết định kỹ thuật / Ghi chú:**
+  - `TitleConfig` contains presentation metadata only for `field_researcher`, `gold_discoverer`, and `tester`. The Staff-category Tester title explicitly grants no permissions.
+  - Fixtures `profile_new_player`, `profile_discoverer`, `profile_gold_showcase`, and `profile_staff_preview` use only current temporary `species_a` / `species_b` IDs and `Normal` / `Gold` variants.
+  - **DEV PREVIEW ONLY:** `previewProfile` reads immutable local fixtures, resolves shared presentation metadata, and displays it in the temporary Dev 3 UI shell. It sends no Remote, grants/equips no Title, and mutates no PlayerData, Collection, onboarding, Research, Pulse, role, or gameplay state.
+  - No onboarding states, PlayerData fields, production RemoteEvents, authoritative state, permissions, or gameplay modifiers were added.
+  - **TBD CONTRACT:** authoritative public Profile snapshot, Profile replication path, public visibility/privacy rules, Title ownership representation, equipped Title representation, equip request/result, and Staff role representation.
+- **Trạng thái:** Foundation implemented; static diff validation passed. Rojo/Studio runtime validation remains pending because the configured CLI tools are unavailable on this host PATH and Studio was not run.
+- **Bước tiếp theo:**
+  - Run the four Client Command Bar Profile previews in Studio and confirm existing Dig/Revival/Research/Breakthrough previews still load.
+  - Integrate production data only after Dev 1 and the team lock the missing contracts.
+- **Yêu cầu phối hợp với Dev 1 & Dev 2:**
+  - **WAITING DEV1:** authoritative Profile snapshot/replication, Title ownership/equip validation, Staff roles, persistence, and any future server-owned Title behavior.
+  - **WAITING DEV2:** final Profile/Title UI, animation, and visual polish.
+
 ### [Template cho Entry Mới]
 ```markdown
 ### [YYYY-MM-DD HH:mm] - [Tên Task / Đầu việc]

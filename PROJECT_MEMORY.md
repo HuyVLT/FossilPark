@@ -378,7 +378,7 @@ Milestones describe integration capability, not calendar days. Independent previ
 
 ## 16. Current Project State
 
-**LAST UPDATED:** 2026-08-29
+**LAST UPDATED:** 2026-08-31
 
 **CURRENT PRIMARY MILESTONE:** M5 — Dev 3 Breakthrough/PulseUnlocked/FreePlay presentation and integration foundation is complete. Production M5 integration remains pending Dev 1 authority, Dev 2 final presentation, and contracted networking boundaries.
 
@@ -437,6 +437,7 @@ Milestones describe integration capability, not calendar days. Independent previ
 - Research presentation config/fixtures and Research journey foundation through `ResearchComplete` at stable HEAD.
 - M5 Day 5 presentation/integration foundation for `ResearchComplete → Breakthrough → PulseUnlocked → FreePlay`, including compact shared presentation metadata, immutable non-contract preview fixtures, target cleanup, and timing support.
 - Day 5 is presentation/integration foundation only. It does not implement authoritative Breakthrough resolution, Pulse unlock/activation, production networking, or persistent progression.
+- Profile presentation and Title metadata foundations, plus four immutable client-only Profile preview fixtures. This supporting foundation adds no production Profile/Title authority, networking, persistence, permissions, or gameplay modifiers.
 - Dev 1 integration handoff and shared team roadmap.
 
 **DOING:**
@@ -449,10 +450,11 @@ Milestones describe integration capability, not calendar days. Independent previ
 - **WAITING DEV2:** final Breakthrough/Pulse presentation, UI, VFX, audio, and camera feedback where applicable.
 - **BLOCKED CONTRACT:** production Breakthrough/Pulse payloads and server-to-client replication path remain TBD.
 - **BLOCKED CONTRACT:** exact `GateSeen` / First Session Protection shutdown integration remains TBD.
+- **BLOCKED CONTRACT:** authoritative public Profile snapshot/replication/visibility and Title ownership/equip/role representations remain TBD.
 
 **READY TO INTEGRATE:**
 
-- Site 1 landmark/config boundaries, world targeting, onboarding presentation preview, First 10 Minutes timing hooks, two-slot Collection presentation metadata, Revival/Research/Breakthrough dev fixtures, and Dev 3 handoff documentation.
+- Site 1 landmark/config boundaries, world targeting, onboarding presentation preview, First 10 Minutes timing hooks, two-slot Collection presentation metadata, Revival/Research/Breakthrough/Profile dev fixtures, Title presentation metadata, and Dev 3 handoff documentation.
 
 ### Team Blockers
 

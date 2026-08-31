@@ -270,6 +270,10 @@ function InteractionUiShell.new(playerGui: PlayerGui)
 		showPanel("BREAKTHROUGH — DEV PREVIEW", instruction, detail, statusLabel)
 	end
 
+	function shell.showProfilePreview(displayName: string, titleLabel: string, discoveryLabel: string, showcaseLabel: string)
+		showPanel("PLAYER PROFILE — DEV PREVIEW", displayName, string.format("%s\n%s", titleLabel, showcaseLabel), discoveryLabel)
+	end
+
 	function shell.isPanelOpen(): boolean
 		return panel.Visible
 	end

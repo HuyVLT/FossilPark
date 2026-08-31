@@ -13,6 +13,7 @@ local InteractionUiShell = require(script:WaitForChild("InteractionUiShell"))
 local OnboardingTargetGuidance = require(script:WaitForChild("OnboardingTargetGuidance"))
 local FirstSessionTimingTracker = require(script:WaitForChild("FirstSessionTimingTracker"))
 local BreakthroughPreviewFixtures = require(script:WaitForChild("BreakthroughPreviewFixtures"))
+local ProfilePreviewFixtures = require(script:WaitForChild("ProfilePreviewFixtures"))
 local RevivalPreviewFixtures = require(script:WaitForChild("RevivalPreviewFixtures"))
 local ResearchPreviewFixtures = require(script:WaitForChild("ResearchPreviewFixtures"))
 local sharedConfig = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")
@@ -20,8 +21,10 @@ local CollectionConfig = require(sharedConfig:WaitForChild("CollectionConfig"))
 local BreakthroughPresentationConfig = require(sharedConfig:WaitForChild("BreakthroughPresentationConfig"))
 local FirstSessionConfig = require(sharedConfig:WaitForChild("FirstSessionConfig"))
 local OnboardingPresentationConfig = require(sharedConfig:WaitForChild("OnboardingPresentationConfig"))
+local ProfilePresentationConfig = require(sharedConfig:WaitForChild("ProfilePresentationConfig"))
 local ResearchPresentationConfig = require(sharedConfig:WaitForChild("ResearchPresentationConfig"))
 local SpeciesConfig = require(sharedConfig:WaitForChild("SpeciesConfig"))
+local TitleConfig = require(sharedConfig:WaitForChild("TitleConfig"))
 
 type InteractionKind = "Dig" | "Revival" | "Research" | "Gate"
 
@@ -43,6 +46,7 @@ local revivalPreviewRequestConnection: RBXScriptConnection? = nil
 local collectionPreviewRequestConnection: RBXScriptConnection? = nil
 local researchPreviewRequestConnection: RBXScriptConnection? = nil
 local breakthroughPreviewRequestConnection: RBXScriptConnection? = nil
+local profilePreviewRequestConnection: RBXScriptConnection? = nil
 local timingTracker: any = nil
 
 local PREVIEW_STATE_ATTRIBUTE = "Dev3PreviewState"
@@ -56,6 +60,8 @@ local RESEARCH_PREVIEW_NAME_ATTRIBUTE = "Dev3ResearchPreviewName"
 local RESEARCH_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3ResearchPreviewRequestId"
 local BREAKTHROUGH_PREVIEW_NAME_ATTRIBUTE = "Dev3BreakthroughPreviewName"
 local BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3BreakthroughPreviewRequestId"
+local PROFILE_PREVIEW_NAME_ATTRIBUTE = "Dev3ProfilePreviewName"
+local PROFILE_PREVIEW_REQUEST_ID_ATTRIBUTE = "Dev3ProfilePreviewRequestId"
 
 local function cleanup()
 	if promptConnection then
@@ -91,6 +97,11 @@ local function cleanup()
 	if breakthroughPreviewRequestConnection then
 		breakthroughPreviewRequestConnection:Disconnect()
 		breakthroughPreviewRequestConnection = nil
+	end
+
+	if profilePreviewRequestConnection then
+		profilePreviewRequestConnection:Disconnect()
+		profilePreviewRequestConnection = nil
 	end
 
 	if targetGuidance then
@@ -183,6 +194,42 @@ local function applyBreakthroughPreview(fixtureName: string): boolean
 	return true
 end
 
+local function applyProfilePreview(fixtureName: string): boolean
+	local fixture = ProfilePreviewFixtures[fixtureName]
+	if not fixture or not previewUi then
+		return false
+	end
+
+	local title = if fixture.titleId then TitleConfig[fixture.titleId] else nil
+	if fixture.titleId and not title then
+		warn(string.format("[ProfilePreview] Unknown title %q", fixture.titleId))
+		return false
+	end
+
+	local showcaseLabels: { string } = {}
+	for _, entry in ipairs(fixture.showcase) do
+		local species = SpeciesConfig[entry.speciesId]
+		if not species then
+			warn(string.format("[ProfilePreview] Unknown temporary species %q", entry.speciesId))
+			return false
+		end
+		table.insert(showcaseLabels, string.format("%s (%s)", species.displayName, entry.variant))
+	end
+
+	local titleLabel = title and title.displayName or ProfilePresentationConfig.emptyTitleLabel
+	local showcaseLabel = if #showcaseLabels > 0
+		then table.concat(showcaseLabels, ", ")
+		else ProfilePresentationConfig.emptyShowcaseLabel
+	previewUi.showProfilePreview(
+		fixture.displayName,
+		string.format("Title: %s", titleLabel),
+		string.format("Discoveries: %d / %d", fixture.discoveryCount, CollectionConfig.totalSpecies),
+		string.format("Showcase: %s", showcaseLabel)
+	)
+	print(string.format("[ProfilePreview] %s", fixtureName))
+	return true
+end
+
 -- DEV PREVIEW ONLY. Displays a named immutable fixture and changes no authoritative state.
 function InteractionShellService.previewRevivalResult(fixtureName: string): boolean
 	if RevivalPreviewFixtures[fixtureName] == nil then
@@ -272,6 +319,29 @@ function InteractionShellService.previewBreakthrough(fixtureName: string): boole
 	screenGui:SetAttribute(BREAKTHROUGH_PREVIEW_NAME_ATTRIBUTE, fixtureName)
 	local requestId = screenGui:GetAttribute(BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE)
 	screenGui:SetAttribute(BREAKTHROUGH_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
+	return true
+end
+
+-- DEV PREVIEW ONLY. Displays immutable local metadata and never mutates PlayerData, Collection, Titles, roles, or gameplay.
+function InteractionShellService.previewProfile(fixtureName: string): boolean
+	if ProfilePreviewFixtures[fixtureName] == nil then
+		warn(string.format("[ProfilePreview] Unknown fixture %q", fixtureName))
+		return false
+	end
+
+	if previewUi then
+		return applyProfilePreview(fixtureName)
+	end
+
+	local screenGui = getPreviewScreenGui()
+	if not screenGui then
+		warn("[ProfilePreview] UI shell is not initialized")
+		return false
+	end
+
+	screenGui:SetAttribute(PROFILE_PREVIEW_NAME_ATTRIBUTE, fixtureName)
+	local requestId = screenGui:GetAttribute(PROFILE_PREVIEW_REQUEST_ID_ATTRIBUTE)
+	screenGui:SetAttribute(PROFILE_PREVIEW_REQUEST_ID_ATTRIBUTE, if type(requestId) == "number" then requestId + 1 else 1)
 	return true
 end
 
@@ -391,6 +461,12 @@ function InteractionShellService.init()
 		local fixtureName = screenGui:GetAttribute(BREAKTHROUGH_PREVIEW_NAME_ATTRIBUTE)
 		if type(fixtureName) == "string" then
 			applyBreakthroughPreview(fixtureName)
+		end
+	end)
+	profilePreviewRequestConnection = screenGui:GetAttributeChangedSignal(PROFILE_PREVIEW_REQUEST_ID_ATTRIBUTE):Connect(function()
+		local fixtureName = screenGui:GetAttribute(PROFILE_PREVIEW_NAME_ATTRIBUTE)
+		if type(fixtureName) == "string" then
+			applyProfilePreview(fixtureName)
 		end
 	end)
 	InteractionShellService.setPreviewState("FirstDig")
